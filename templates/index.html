@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RareDx — Diagnóstico de Doenças Raras</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="header-inner">
+        <div class="logo">
+            <span class="logo-icon">⚕</span>
+            <span class="logo-text">Rare<strong>Dx</strong></span>
+        </div>
+        <nav class="header-nav">
+            <a href="#form-section">Diagnóstico</a>
+            <a href="#about-section">Sobre</a>
+        </nav>
+    </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-badge">Ferramenta de Apoio Clínico</div>
+        <h1 class="hero-title">Diagnóstico Diferencial<br/>para <span class="highlight">Doenças Raras</span></h1>
+        <p class="hero-subtitle">
+            Insira os dados do paciente, histórico familiar e sintomas para obter
+            uma lista de possíveis condições raras com base em evidências clínicas.
+        </p>
+        <a href="#form-section" class="btn btn-primary btn-lg">Iniciar Avaliação</a>
+    </div>
+</section>
+
+<!-- FORMULÁRIO PRINCIPAL -->
+<main id="form-section" class="container">
+    <div class="form-wrapper">
+
+        <!-- BARRA DE PROGRESSO DE ETAPAS -->
+        <div class="stepper">
+            <div class="step active" data-step="1">
+                <div class="step-circle">1</div>
+                <span>Dados do Paciente</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="2">
+                <div class="step-circle">2</div>
+                <span>Histórico Familiar</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="3">
+                <div class="step-circle">3</div>
+                <span>Sintomas</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="4">
+                <div class="step-circle">4</div>
+                <span>Resultado</span>
+            </div>
+        </div>
+
+        <!-- ETAPA 1: DADOS DO PACIENTE -->
+        <div class="form-step" id="step-1">
+            <div class="step-header">
+                <h2>Dados do Paciente</h2>
+                <p>Preencha as informações básicas do paciente para melhorar a precisão do diagnóstico.</p>
+            </div>
+            <div class="form-grid">
+                <div class="form-group col-2">
+                    <label for="patient-name">Nome do Paciente <span class="optional">(opcional)</span></label>
+                    <input type="text" id="patient-name" placeholder="Nome completo" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                    <label for="patient-age">Idade <span class="required">*</span></label>
+                    <input type="number" id="patient-age" placeholder="Ex: 32" min="0" max="120" required />
+                </div>
+                <div class="form-group">
+                    <label for="patient-sex">Sexo Biológico <span class="required">*</span></label>
+                    <select id="patient-sex" required>
+                        <option value="">Selecione...</option>
+                        <option value="feminino">Feminino</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="outro">Outro / Não informado</option>
+                    </select>
+                </div>
+                <div class="form-group col-2">
+                    <label for="patient-ethnicity">Etnia / Ancestralidade</label>
+                    <select id="patient-ethnicity">
+                        <option value="">Não informado</option>
+                        <option value="branca">Branca / Europeia</option>
+                        <option value="negra">Negra / Africana</option>
+                        <option value="parda">Parda / Mista</option>
+                        <option value="asiatica">Asiática</option>
+                        <option value="judaica_ashkenazi">Judaica Ashkenazi</option>
+                        <option value="mediterranea">Mediterrânea</option>
+                        <option value="indigena">Indígena</option>
+                        <option value="outra">Outra</option>
+                    </select>
+                </div>
+                <div class="form-group col-2">
+                    <label for="chief-complaint">Queixa Principal</label>
+                    <textarea id="chief-complaint" placeholder="Descreva brevemente o problema principal do paciente..." rows="3"></textarea>
+                </div>
+            </div>
+
+            <div class="form-section-title">Fatores de Risco Gerais</div>
+            <div class="checkbox-grid" id="risk-factors-grid">
+                <label class="checkbox-item">
+                    <input type="checkbox" value="historico_familiar" /> Histórico familiar de doenças genéticas
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="tabagismo" /> Tabagismo
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="doenças_autoimunes" /> Doenças autoimunes
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="ascendência_judaica_ashkenazi" /> Ascendência Judaica Ashkenazi
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="ascendência_africana" /> Ascendência Africana
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="ascendência_mediterrânea" /> Ascendência Mediterrânea
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="timoma" /> Timoma diagnosticado
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="uso_de_certos_medicamentos" /> Uso de medicamentos potencialmente gatilho
+                </label>
+            </div>
+
+            <div class="step-actions">
+                <button class="btn btn-primary" onclick="nextStep(2)">Próximo: Histórico Familiar →</button>
+            </div>
+        </div>
+
+        <!-- ETAPA 2: HISTÓRICO FAMILIAR -->
+        <div class="form-step hidden" id="step-2">
+            <div class="step-header">
+                <h2>Histórico Familiar</h2>
+                <p>Informações sobre doenças na família têm peso significativo no diagnóstico diferencial genético.</p>
+            </div>
+
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="consanguinity" />
+                    <span class="toggle-text">Há consanguinidade entre os pais ou ancestrais próximos?</span>
+                </label>
+            </div>
+
+            <div class="form-section-title">Condições na Família</div>
+            <p class="section-hint">Selecione todas as condições presentes em familiares de 1º ou 2º grau.</p>
+
+            <div class="family-conditions-grid" id="family-conditions-grid">
+                <!-- Preenchido pelo JavaScript -->
+                <div class="loading-spinner small"><div class="spinner"></div> Carregando...</div>
+            </div>
+
+            <div class="form-group mt-4">
+                <label for="family-notes">Observações Adicionais sobre o Histórico Familiar</label>
+                <textarea id="family-notes" placeholder="Ex: avó paterna faleceu de insuficiência cardíaca aos 35 anos, tio materno com doença neurológica não diagnosticada..." rows="3"></textarea>
+            </div>
+
+            <div class="step-actions">
+                <button class="btn btn-secondary" onclick="nextStep(1)">← Voltar</button>
+                <button class="btn btn-primary" onclick="nextStep(3)">Próximo: Sintomas →</button>
+            </div>
+        </div>
+
+        <!-- ETAPA 3: SINTOMAS -->
+        <div class="form-step hidden" id="step-3">
+            <div class="step-header">
+                <h2>Sintomas do Paciente</h2>
+                <p>Selecione todos os sintomas presentes. Quanto mais sintomas informados, mais preciso o resultado.</p>
+            </div>
+
+            <div class="symptom-search-bar">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="symptom-search" placeholder="Buscar sintoma..." oninput="filterSymptoms(this.value)" />
+                <button class="clear-search" onclick="clearSearch()" title="Limpar busca">✕</button>
+            </div>
+
+            <div class="symptom-counter">
+                <span id="selected-count">0</span> sintomas selecionados
+                <button class="btn-link" onclick="clearAllSymptoms()">Limpar todos</button>
+            </div>
+
+            <div class="symptoms-grid" id="symptoms-grid">
+                <!-- Preenchido pelo JavaScript -->
+                <div class="loading-spinner"><div class="spinner"></div><p>Carregando sintomas...</p></div>
+            </div>
+
+            <div class="step-actions">
+                <button class="btn btn-secondary" onclick="nextStep(2)">← Voltar</button>
+                <button class="btn btn-primary btn-diagnose" onclick="runDiagnosis()">
+                    <span class="btn-icon">⚕</span> Gerar Diagnóstico Diferencial
+                </button>
+            </div>
+        </div>
+
+        <!-- ETAPA 4: RESULTADOS -->
+        <div class="form-step hidden" id="step-4">
+            <div id="results-container">
+                <!-- Preenchido pelo JavaScript -->
+            </div>
+            <div class="step-actions mt-4">
+                <button class="btn btn-secondary" onclick="nextStep(3)">← Editar Sintomas</button>
+                <button class="btn btn-outline" onclick="resetForm()">🔄 Nova Avaliação</button>
+            </div>
+        </div>
+
+    </div><!-- end form-wrapper -->
+</main>
+
+<!-- SOBRE -->
+<section id="about-section" class="about-section">
+    <div class="container">
+        <div class="about-grid">
+            <div class="about-card">
+                <div class="about-icon">🧬</div>
+                <h3>Base de Dados Clínica</h3>
+                <p>18+ doenças raras catalogadas com sintomas, herança genética, genes envolvidos e critérios clínicos baseados no Orphanet e OMIM.</p>
+            </div>
+            <div class="about-card">
+                <div class="about-icon">📊</div>
+                <h3>Pontuação Ponderada</h3>
+                <p>Algoritmo que cruza sintomas (60%), histórico familiar (25%) e fatores de risco (15%), com bônus por sinais de alerta clínicos.</p>
+            </div>
+            <div class="about-card">
+                <div class="about-icon">⚠️</div>
+                <h3>Aviso Médico</h3>
+                <p>Esta ferramenta é apenas de apoio informativo. Não substitui avaliação por médico especialista ou geneticista clínico.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <p>RareDx © 2026 — Ferramenta de apoio ao diagnóstico diferencial de doenças raras.</p>
+        <p class="footer-disclaimer">Este sistema é educacional e informativo. Não fornece diagnóstico médico definitivo.</p>
+    </div>
+</footer>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
