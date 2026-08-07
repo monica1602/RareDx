@@ -919,3 +919,10 @@ select option { background: var(--bg-card); }
 }
 .results-footer-note strong { color: var(--yellow); }
 .results-footer-note svg { flex-shrink: 0; margin-top: 1px; }
+
+/* ── Priority: sem prioridade ── */
+.score-none { background: rgba(100,116,139,.1); color: var(--text-dim); border: 1px solid rgba(100,116,139,.2); }
+.score-none-bar { background: var(--text-dim); }
+.score-none-txt { color: var(--text-dim); }
+/* Dashboard rings */
+.score-ring.none { border-color: var(--text-dim); color: var(--text-dim); }
