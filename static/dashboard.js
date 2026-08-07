@@ -1,4 +1,4 @@
-/* ── RareDx Dashboard.js ── */
+/* ── ArIAdne.Dx Dashboard.js ── */
 
 /* ── Sidebar tab switching ── */
 function switchTab(name) {
@@ -246,8 +246,8 @@ async function runDashDiagnosis() {
 
     window._lastResults = data;
     window._lastPayload = payload;
-    sessionStorage.setItem('raredx_results', JSON.stringify(data));
-    sessionStorage.setItem('raredx_payload', JSON.stringify(payload));
+    sessionStorage.setItem('ariadne_results', JSON.stringify(data));
+    sessionStorage.setItem('ariadne_payload', JSON.stringify(payload));
 
     renderDashResults(data, payload);
     generateReport(data, payload);
@@ -366,10 +366,10 @@ function generateReport(data, payload) {
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
         <div>
           <h2>Relatório de Triagem · Doenças Raras</h2>
-          <div class="report-date">Gerado em: ${now} · RareDx v1.0 · Orphanet/OMIM</div>
+          <div class="report-date">Gerado em: ${now} · ArIAdne.Dx v1.0 · Orphanet/OMIM</div>
         </div>
         <div style="text-align:right;font-size:12px;color:var(--text-dim)">
-          <div style="font-size:18px;font-weight:800;color:var(--accent)">RareDx</div>
+          <div style="font-size:18px;font-weight:800;color:var(--accent)">ArIAdne.Dx</div>
           Ferramenta de apoio clínico
         </div>
       </div>
@@ -427,8 +427,8 @@ function generateReport(data, payload) {
 /* ── Restore session from chat ── */
 function tryRestoreSession() {
   try {
-    const results = sessionStorage.getItem('raredx_results');
-    const payload = sessionStorage.getItem('raredx_payload');
+    const results = sessionStorage.getItem('ariadne_results');
+    const payload = sessionStorage.getItem('ariadne_payload');
     if (results && payload) {
       const r = JSON.parse(results);
       const p = JSON.parse(payload);
