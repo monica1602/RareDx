@@ -1,4 +1,4 @@
-/* ── RareDx App.js ── */
+/* ── ArIAdne.Dx App.js ── */
 
 /* ── Header scroll ── */
 window.addEventListener('scroll', () => {
@@ -97,7 +97,7 @@ function startChat() {
   loadSymptoms();
   setTimeout(() => {
     showTyping(800, () => {
-      addBotMessage('Olá! 👋 Sou o Ari, assistente de triagem do RareDx.');
+      addBotMessage('Olá! 👋 Sou o Ari, assistente de triagem do ArIAdne.Dx.');
       setTimeout(() => {
         showTyping(1000, () => {
           addBotMessage('Estou aqui para te ajudar a descrever seus sintomas de forma simples. Com base no que você me contar, vou gerar um relatório para o seu médico.');
@@ -515,8 +515,8 @@ function simplifyDescription(desc) {
 
 function openDashboardReport() {
   if (window._lastResults) {
-    sessionStorage.setItem('raredx_results', JSON.stringify(window._lastResults));
-    sessionStorage.setItem('raredx_payload', JSON.stringify(window._lastPayload));
+    sessionStorage.setItem('ariadne_results', JSON.stringify(window._lastResults));
+    sessionStorage.setItem('ariadne_payload', JSON.stringify(window._lastPayload));
   }
   window.open('/dashboard', '_blank');
 }
