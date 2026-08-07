@@ -1,5 +1,19 @@
 /* ── ArIAdne.Dx Dashboard.js ── */
 
+/* ── Priority thresholds (mirrors app.js) ── */
+function getPriorityDash(score) {
+  if (score >= 75) return { label: 'Alta Prioridade',  cls: 'high', icon: '🔴', color: 'var(--red)'     };
+  if (score >= 50) return { label: 'Prioridade Média', cls: 'med',  icon: '🟡', color: 'var(--yellow)'  };
+  if (score >= 25) return { label: 'Prioridade Baixa', cls: 'low',  icon: '🟢', color: 'var(--green)'   };
+  return             { label: 'Sem Prioridade',   cls: 'none', icon: '⚪', color: 'var(--text-dim)' };
+}
+function scoreRingClass(score) {
+  if (score >= 75) return 'high';
+  if (score >= 50) return 'med';
+  if (score >= 25) return 'low';
+  return 'none';
+}
+
 /* ── Sidebar tab switching ── */
 function switchTab(name) {
   document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
@@ -337,6 +351,8 @@ async function runDashDiagnosis() {
       sex,
       ethnicity: document.getElementById('d-ethnicity')?.value || '',
       chief_complaint: document.getElementById('d-complaint')?.value || '',
+      location: document.getElementById('d-location')?.value || '',
+      exams: document.getElementById('d-exams')?.value || '',
     },
     family_history: {
       conditions: familyConditions,
@@ -402,16 +418,13 @@ function renderDashResults(data, payload) {
   </div><div class="results-grid">`;
 
   for (const r of data.results) {
-    const scoreClass  = r.score >= 50 ? 'high' : r.score >= 25 ? 'med' : 'low';
-    const orphaNum    = r.orpha_number || r.orphanet_code?.replace('ORPHA:', '') || '';
-    const rarasLink   = r.raras_url || (orphaNum ? `https://raras.org/doenca/${orphaNum}` : '');
+    const prio       = getPriorityDash(r.score);
+    const scoreClass = scoreRingClass(r.score);
+    const orphaNum   = r.orpha_number || r.orphanet_code?.replace('ORPHA:', '') || '';
+    const rarasLink  = r.raras_url || (orphaNum ? `https://raras.org/doenca/${orphaNum}` : '');
 
-    const susTag = r.has_sus
-      ? `<span class="result-tag tag-sus">✅ Cobre pelo SUS</span>`
-      : '';
-    const trialsTag = r.trial_count > 0
-      ? `<span class="result-tag tag-trials">🧪 ${r.trial_count} trials</span>`
-      : '';
+    const susTag    = r.has_sus    ? `<span class="result-tag tag-sus">✅ Cobre pelo SUS</span>` : '';
+    const trialsTag = r.trial_count > 0 ? `<span class="result-tag tag-trials">🧪 ${r.trial_count} trials</span>` : '';
 
     html += `<div class="result-card ${r.has_red_flags ? 'has-red-flag' : ''}" id="card-${orphaNum}">
       <div class="result-card-header">
@@ -442,8 +455,8 @@ function renderDashResults(data, payload) {
 
         ${susTag || trialsTag ? `<div class="result-tags" style="margin-top:4px">${susTag}${trialsTag}</div>` : ''}
 
-        <div class="urgency-bar ${r.urgency.color === 'danger' ? 'high' : r.urgency.color === 'warning' ? 'med' : 'low'}">
-          ${r.urgency.icon} ${r.urgency.label}
+        <div class="urgency-bar ${prio.cls}">
+          ${prio.icon} ${prio.label}
         </div>
 
         ${orphaNum ? `<div class="result-actions-row">
@@ -451,12 +464,9 @@ function renderDashResults(data, payload) {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             SUS · Centros · Trials
           </button>
-          ${rarasLink ? `<a href="${rarasLink}" target="_blank" class="btn-raras-link">
-            raras.org →
-          </a>` : ''}
+          ${rarasLink ? `<a href="${rarasLink}" target="_blank" class="btn-raras-link">raras.org →</a>` : ''}
         </div>
         <div class="enrichment-area" id="enrich-${orphaNum}"></div>` : ''}
-
       </div>
     </div>`;
   }
@@ -556,12 +566,10 @@ async function loadEnrichment(orphaNum, btn) {
 }
 
 function clearDashForm() {
-  document.getElementById('d-name').value = '';
-  document.getElementById('d-age').value = '';
-  document.getElementById('d-sex').value = '';
-  document.getElementById('d-ethnicity').value = '';
-  document.getElementById('d-complaint').value = '';
-  document.getElementById('d-family-notes').value = '';
+  ['d-name','d-age','d-sex','d-ethnicity','d-complaint','d-location','d-exams','d-family-notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
   document.getElementById('d-consanguinity').checked = false;
   document.querySelectorAll('#risk-grid input').forEach(i => i.checked = false);
   document.querySelectorAll('#family-conditions-dash input').forEach(i => i.checked = false);
@@ -571,40 +579,54 @@ function clearDashForm() {
   if (area) area.style.display = 'none';
 }
 
-/* ── Generate Report ── */
+/* ── Generate Report (médico + agente de saúde) ── */
 function generateReport(data, payload) {
   const card = document.getElementById('report-card');
   if (!card || !data.success || !data.results?.length) return;
 
-  const now = new Date().toLocaleString('pt-BR');
-  const patient = payload.patient;
-  const top5 = data.results.slice(0, 5);
+  const now      = new Date().toLocaleString('pt-BR');
+  const patient  = payload.patient || {};
+  const allRes   = data.results;
+  const alta     = allRes.filter(r => r.score >= 75);
+  const media    = allRes.filter(r => r.score >= 50 && r.score < 75);
+  const baixa    = allRes.filter(r => r.score >= 25 && r.score < 50);
+  const sem      = allRes.filter(r => r.score < 25);
 
-  let genesSet = new Set();
-  for (const r of top5) {
-    (r.inheritance || []).forEach(g => {});
+  const symptomsList = (payload.symptoms || []).slice(0, 20).map(s => s.replace(/_/g, ' ')).join(', ');
+  const location     = patient.location || 'Não informado';
+  const exams        = patient.exams    || 'Nenhum exame informado';
+  const duration     = patient.duration || 'Não informado';
+
+  function priorityRows(list) {
+    if (!list.length) return '<tr><td colspan="5" style="color:var(--text-dim);font-size:12px">Nenhuma condição nesta faixa</td></tr>';
+    return list.map((r, i) => {
+      const p = getPriorityDash(r.score);
+      return `<tr>
+        <td>${i + 1}. ${r.name}</td>
+        <td style="font-weight:700;color:${p.color}">${r.score}%</td>
+        <td style="color:var(--text-muted);font-size:12px">${r.orphanet_code || '—'}</td>
+        <td>${r.has_sus ? '<span style="color:var(--green)">✅ Sim</span>' : '—'}</td>
+        <td style="color:${p.color}">${p.icon} ${p.label}</td>
+      </tr>`;
+    }).join('');
   }
 
-  let tableRows = top5.map((r, i) => `
-    <tr>
-      <td>${i + 1}. ${r.name}</td>
-      <td>${r.score}%</td>
-      <td>${r.orphanet_code}</td>
-      <td>${(r.inheritance||[]).join(', ').replace(/_/g,' ') || '—'}</td>
-      <td style="color:${r.urgency.color === 'danger' ? 'var(--red)' : r.urgency.color === 'warning' ? 'var(--yellow)' : 'var(--green)'}">
-        ${r.urgency.icon} ${r.urgency.label}
-      </td>
-    </tr>`).join('');
-
-  const symptomsList = payload.symptoms.slice(0, 15).map(s => s.replace(/_/g, ' ')).join(', ');
-  const disclaimer = data.disclaimer;
-
   card.innerHTML = `
-    <div class="report-doc" id="printable-report">
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+      <button class="btn-diagnose-dash" id="btn-show-medical" onclick="showReportSection('medical')">
+        Relatório Médico
+      </button>
+      <button class="btn-clear-dash" id="btn-show-agent" onclick="showReportSection('agent')">
+        Relatório Agente de Saúde
+      </button>
+    </div>
+
+    <!-- MÉDICO -->
+    <div id="report-medical" class="report-doc">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
         <div>
-          <h2>Relatório de Triagem · Doenças Raras</h2>
-          <div class="report-date">Gerado em: ${now} · ArIAdne.Dx v1.0 · Orphanet/OMIM</div>
+          <h2>Relatório de Triagem Clínica · Doenças Raras</h2>
+          <div class="report-date">Gerado em: ${now} · ArIAdne.Dx v1.0 · raras.org / Orphanet</div>
         </div>
         <div style="text-align:right;font-size:12px;color:var(--text-dim)">
           <div style="font-size:18px;font-weight:800;color:var(--accent)">ArIAdne.Dx</div>
@@ -617,73 +639,170 @@ function generateReport(data, payload) {
         <table class="report-table">
           <tr><th>Campo</th><th>Valor</th></tr>
           <tr><td>Nome</td><td>${patient.name || 'Não informado'}</td></tr>
-          <tr><td>Idade</td><td>${patient.age} anos</td></tr>
-          <tr><td>Sexo Biológico</td><td>${patient.sex}</td></tr>
-          <tr><td>Etnia / Ancestralidade</td><td>${patient.ethnicity || 'Não informado'}</td></tr>
-          <tr><td>Queixa Principal</td><td>${patient.chief_complaint || 'Não informado'}</td></tr>
-          <tr><td>Fatores de Risco</td><td>${payload.risk_factors.join(', ').replace(/_/g,' ') || 'Nenhum'}</td></tr>
+          <tr><td>Idade</td><td>${patient.age || '—'} anos</td></tr>
+          <tr><td>Sexo Biológico</td><td>${patient.sex || '—'}</td></tr>
+          <tr><td>Localização</td><td>${location}</td></tr>
+          <tr><td>Queixa Principal</td><td>${patient.chief_complaint || symptomsList || 'Não informado'}</td></tr>
+          <tr><td>Duração dos Sintomas</td><td>${duration}</td></tr>
+          <tr><td>Exames Realizados</td><td>${exams}</td></tr>
+          <tr><td>Fatores de Risco</td><td>${(payload.risk_factors || []).join(', ').replace(/_/g,' ') || 'Nenhum'}</td></tr>
         </table>
       </div>
 
       <div class="report-section">
-        <div class="report-section-title">2. Sintomas Mapeados (HPO)</div>
+        <div class="report-section-title">2. Sintomas Identificados (HPO)</div>
         <p style="font-size:13px;color:var(--text-muted);line-height:1.6">${symptomsList || 'Não especificado'}</p>
-        <p style="font-size:12px;color:var(--text-dim);margin-top:6px">Total: ${payload.symptoms.length} sintomas identificados</p>
+        <p style="font-size:12px;color:var(--text-dim);margin-top:4px">Total: ${(payload.symptoms||[]).length} sintomas mapeados</p>
       </div>
 
       <div class="report-section">
-        <div class="report-section-title">3. Hipóteses Diagnósticas (Top ${top5.length})</div>
-        <table class="report-table">
-          <thead><tr><th>Condição</th><th>Score</th><th>Orphanet</th><th>Herança</th><th>SUS</th><th>Prioridade</th></tr></thead>
-          <tbody>${top5.map((r, i) => `
-            <tr>
-              <td>${i + 1}. ${r.name}</td>
-              <td>${r.score}%</td>
-              <td>${r.orphanet_code}</td>
-              <td>${(r.inheritance||[]).join(', ').replace(/_/g,' ') || '—'}</td>
-              <td>${r.has_sus ? '✅ Sim' : '—'}</td>
-              <td style="color:${r.urgency.color === 'danger' ? 'var(--red)' : r.urgency.color === 'warning' ? 'var(--yellow)' : 'var(--green)'}">
-                ${r.urgency.icon} ${r.urgency.label}
-              </td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
+        <div class="report-section-title">3. Hipóteses por Nível de Prioridade</div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px">🔴 Alta Prioridade (&gt;75%) — ${alta.length} condição(ões)</div>
+          <table class="report-table"><thead><tr><th>Condição</th><th>Score</th><th>Orphanet</th><th>SUS</th><th>Prioridade</th></tr></thead>
+          <tbody>${priorityRows(alta)}</tbody></table>
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:6px">🟡 Prioridade Média (50–74%) — ${media.length} condição(ões)</div>
+          <table class="report-table"><thead><tr><th>Condição</th><th>Score</th><th>Orphanet</th><th>SUS</th><th>Prioridade</th></tr></thead>
+          <tbody>${priorityRows(media)}</tbody></table>
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px">🟢 Prioridade Baixa (25–49%) — ${baixa.length} condição(ões)</div>
+          <table class="report-table"><thead><tr><th>Condição</th><th>Score</th><th>Orphanet</th><th>SUS</th><th>Prioridade</th></tr></thead>
+          <tbody>${priorityRows(baixa)}</tbody></table>
+        </div>
+        ${sem.length ? `<div>
+          <div style="font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:6px">⚪ Sem Prioridade (&lt;25%) — ${sem.length} condição(ões)</div>
+          <table class="report-table"><thead><tr><th>Condição</th><th>Score</th><th>Orphanet</th><th>SUS</th><th>Prioridade</th></tr></thead>
+          <tbody>${priorityRows(sem)}</tbody></table>
+        </div>` : ''}
       </div>
 
       <div class="report-section">
-        <div class="report-section-title">4. Cobertura SUS e Centros de Referência</div>
+        <div class="report-section-title">4. Cobertura SUS</div>
         <div style="background:var(--green-light);border:1px solid rgba(16,185,129,.2);border-radius:var(--radius);padding:14px;font-size:13px;color:var(--text-muted);line-height:1.7">
-          ${top5.filter(r => r.has_sus).length
-            ? `<p>✅ <strong style="color:var(--green)">${top5.filter(r=>r.has_sus).length} condição(ões)</strong> possuem cobertura confirmada pelo SUS (CEAF/PCDT):</p>
-               <ul style="margin-top:6px;padding-left:16px">${top5.filter(r=>r.has_sus).map(r=>`<li>${r.name} — <a href="${r.raras_url||'#'}" style="color:var(--accent)">${r.orphanet_code}</a></li>`).join('')}</ul>`
-            : '<p>Nenhuma das hipóteses listadas possui cobertura SUS confirmada nesta triagem. Consulte o médico para verificação atualizada.</p>'
+          ${alta.filter(r=>r.has_sus).length
+            ? `<p>✅ <strong style="color:var(--green)">${alta.filter(r=>r.has_sus).length} condição(ões) de alta prioridade</strong> possuem cobertura confirmada pelo SUS:</p>
+               <ul style="margin-top:6px;padding-left:16px">${alta.filter(r=>r.has_sus).map(r=>`<li>${r.name} — ${r.orphanet_code}</li>`).join('')}</ul>`
+            : '<p>Nenhuma condição de alta prioridade com cobertura SUS confirmada nesta triagem.</p>'
           }
-          <p style="margin-top:10px">Para centros de referência por UF, consulte a aba <strong>Nova Triagem</strong> → botão "SUS · Centros · Trials" em cada hipótese.</p>
         </div>
       </div>
 
       <div class="report-section">
         <div class="report-section-title">5. Recomendação de Encaminhamento</div>
         <div style="background:var(--accent-light);border:1px solid var(--accent-glow);border-radius:var(--radius);padding:16px;font-size:13px;color:var(--text-muted);line-height:1.7">
-          <p>Com base na triagem automatizada, sugere-se avaliação por <strong style="color:var(--text)">geneticista clínico</strong> e/ou especialista na área de ${top5[0]?.category || 'doenças raras'}.</p>
-          <p style="margin-top:8px">Exames iniciais sugeridos (a critério do médico responsável): análise genética molecular, painel de erros inatos do metabolismo, avaliação laboratorial específica por condição suspeita.</p>
-          ${data.source?.startsWith('raras') ? `<p style="margin-top:8px;color:var(--accent);font-size:12px">🔬 Triagem realizada via raras.org · Knowledge Graph Brasileiro de Doenças Raras · CC-BY-4.0</p>` : ''}
+          <p>Com base na triagem, sugere-se avaliação por <strong style="color:var(--text)">geneticista clínico</strong> e/ou especialista em doenças raras.</p>
+          <p style="margin-top:8px">Exames iniciais sugeridos: análise genética molecular, painel de erros inatos do metabolismo, avaliação laboratorial específica por condição suspeita.</p>
+          ${data.source?.startsWith('raras') ? `<p style="margin-top:8px;color:var(--accent);font-size:12px">🔬 Triagem via raras.org · Knowledge Graph Brasileiro · CC-BY-4.0</p>` : ''}
         </div>
       </div>
 
       <div class="report-section">
         <div class="report-section-title">6. Disclaimer</div>
-        <p style="font-size:12px;color:var(--text-dim);line-height:1.6">${disclaimer}</p>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.6">${data.disclaimer}</p>
       </div>
     </div>
 
-    <div class="report-actions">
+    <!-- AGENTE DE SAÚDE -->
+    <div id="report-agent" class="report-doc" style="display:none">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h2>Relatório para Agente de Saúde</h2>
+          <div class="report-date">Gerado em: ${now} · ArIAdne.Dx · Triagem de Doenças Raras</div>
+        </div>
+        <div style="text-align:right;font-size:12px;color:var(--text-dim)">
+          <div style="font-size:18px;font-weight:800;color:var(--accent)">ArIAdne.Dx</div>
+          Encaminhamento via UBS/SAPS
+        </div>
+      </div>
+
+      <div style="background:var(--red-light);border:1px solid rgba(239,68,68,.25);border-radius:var(--radius);padding:14px;margin-bottom:20px;font-size:13px;color:var(--red);line-height:1.6">
+        <strong>⚠ Atenção:</strong> Este paciente realizou uma triagem automática e apresentou sintomas com alta compatibilidade (acima de 75%) com condições raras. Solicita-se encaminhamento prioritário ao especialista adequado.
+      </div>
+
+      <div class="report-section">
+        <div class="report-section-title">1. Identificação do Paciente</div>
+        <table class="report-table">
+          <tr><th>Campo</th><th>Valor</th></tr>
+          <tr><td>Nome</td><td>${patient.name || 'Não informado'}</td></tr>
+          <tr><td>Idade</td><td>${patient.age || '—'} anos</td></tr>
+          <tr><td>Sexo Biológico</td><td>${patient.sex || '—'}</td></tr>
+          <tr><td>Localização / Região</td><td><strong>${location}</strong></td></tr>
+        </table>
+      </div>
+
+      <div class="report-section">
+        <div class="report-section-title">2. Sintomas Relatados pelo Paciente</div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--text-muted);line-height:1.7">
+          <p><strong style="color:var(--text)">Queixa principal:</strong> ${patient.chief_complaint || symptomsList || 'Não informado'}</p>
+          <p style="margin-top:8px"><strong style="color:var(--text)">Duração:</strong> ${duration}</p>
+          <p style="margin-top:8px"><strong style="color:var(--text)">Exames já realizados:</strong> ${exams}</p>
+          <p style="margin-top:8px"><strong style="color:var(--text)">Histórico familiar:</strong> ${(payload.risk_factors||[]).includes('historico_familiar') ? 'Sim — histórico de doenças genéticas na família' : 'Não informado'}</p>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="report-section-title">3. Condições de Alta Prioridade (acima de 75%)</div>
+        ${alta.length ? `
+        <table class="report-table">
+          <thead><tr><th>Condição Suspeita</th><th>Compatibilidade</th><th>Orphanet</th><th>Cobre SUS?</th></tr></thead>
+          <tbody>${alta.map(r => `<tr>
+            <td><strong>${r.name}</strong><br><span style="font-size:11px;color:var(--text-dim)">${r.category}</span></td>
+            <td style="color:var(--red);font-weight:700">${r.score}%</td>
+            <td style="font-size:12px;color:var(--accent)">${r.orphanet_code || '—'}</td>
+            <td>${r.has_sus ? '<span style="color:var(--green)">✅ Sim</span>' : '❌ Não'}</td>
+          </tr>`).join('')}</tbody>
+        </table>` : '<p style="color:var(--text-dim);font-size:13px">Nenhuma condição acima de 75% nesta triagem.</p>'}
+      </div>
+
+      <div class="report-section">
+        <div class="report-section-title">4. Todas as Hipóteses (resumo)</div>
+        <table class="report-table">
+          <thead><tr><th>Condição</th><th>Score</th><th>Nível</th></tr></thead>
+          <tbody>${allRes.map(r => {
+            const p = getPriorityDash(r.score);
+            return `<tr>
+              <td>${r.name}</td>
+              <td style="color:${p.color};font-weight:600">${r.score}%</td>
+              <td style="color:${p.color}">${p.icon} ${p.label}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+
+      <div class="report-section">
+        <div class="report-section-title">5. Ação Recomendada</div>
+        <div style="background:var(--accent-light);border:1px solid var(--accent-glow);border-radius:var(--radius);padding:16px;font-size:13px;color:var(--text-muted);line-height:1.8">
+          <p>1. <strong style="color:var(--text)">Agendar consulta</strong> com médico generalista da UBS de referência para ${location}.</p>
+          <p>2. <strong style="color:var(--text)">Solicitar encaminhamento</strong> ao geneticista clínico ou especialista em doenças raras.</p>
+          <p>3. <strong style="color:var(--text)">Exames sugeridos</strong> (a critério médico): hemograma completo, enzimas hepáticas, exame genético molecular, avaliação neurológica.</p>
+          ${alta.some(r=>r.has_sus) ? `<p>4. <strong style="color:var(--green)">Verificar cobertura CEAF/PCDT</strong> para as condições com SUS confirmado.</p>` : ''}
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="report-section-title">6. Disclaimer</div>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.6">${data.disclaimer}</p>
+      </div>
+    </div>
+
+    <div class="report-actions" style="margin-top:20px">
       <button class="btn-diagnose-dash" onclick="window.print()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Imprimir / PDF
       </button>
       <button class="btn-clear-dash" onclick="switchTab('triagem')">Nova Triagem</button>
     </div>`;
+}
+
+function showReportSection(section) {
+  document.getElementById('report-medical').style.display = section === 'medical' ? 'block' : 'none';
+  document.getElementById('report-agent').style.display   = section === 'agent'   ? 'block' : 'none';
+  document.getElementById('btn-show-medical').className   = section === 'medical' ? 'btn-diagnose-dash' : 'btn-clear-dash';
+  document.getElementById('btn-show-agent').className     = section === 'agent'   ? 'btn-diagnose-dash' : 'btn-clear-dash';
+}
 }
 
 /* ── Restore session from chat ── */
@@ -698,10 +817,12 @@ function tryRestoreSession() {
       generateReport(r, p);
       // Pre-fill patient fields
       if (p.patient) {
-        if (document.getElementById('d-name')) document.getElementById('d-name').value = p.patient.name || '';
-        if (document.getElementById('d-age')) document.getElementById('d-age').value = p.patient.age || '';
-        if (document.getElementById('d-sex')) document.getElementById('d-sex').value = p.patient.sex || '';
+        if (document.getElementById('d-name'))      document.getElementById('d-name').value      = p.patient.name || '';
+        if (document.getElementById('d-age'))       document.getElementById('d-age').value       = p.patient.age  || '';
+        if (document.getElementById('d-sex'))       document.getElementById('d-sex').value       = p.patient.sex  || '';
         if (document.getElementById('d-complaint')) document.getElementById('d-complaint').value = p.patient.chief_complaint || '';
+        if (document.getElementById('d-location'))  document.getElementById('d-location').value  = p.patient.location || '';
+        if (document.getElementById('d-exams'))     document.getElementById('d-exams').value     = p.patient.exams    || '';
       }
     }
   } catch (e) {}
