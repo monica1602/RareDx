@@ -1,254 +1,293 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RareDx — Diagnóstico de Doenças Raras</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RareDx — Diagnóstico de Doenças Raras</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="header">
-    <div class="header-inner">
-        <div class="logo">
-            <span class="logo-icon">⚕</span>
-            <span class="logo-text">Rare<strong>Dx</strong></span>
-        </div>
-        <nav class="header-nav">
-            <a href="#form-section">Diagnóstico</a>
-            <a href="#about-section">Sobre</a>
-        </nav>
-    </div>
+<!-- ── HEADER ── -->
+<header class="header" id="header">
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/><path d="M8 12H4"/><path d="M20 12h-4"/></svg>
+      </div>
+      <span>Rare<strong>Dx</strong></span>
+    </a>
+    <nav class="header-nav">
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#sobre">Sobre</a>
+      <a href="/dashboard" class="btn-nav-doctor">Área Médica</a>
+    </nav>
+    <button class="hamburger" id="hamburger" aria-label="menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="#como-funciona">Como funciona</a>
+    <a href="#sobre">Sobre</a>
+    <a href="/dashboard">Área Médica</a>
+  </div>
 </header>
 
-<!-- HERO -->
+<!-- ── HERO ── -->
 <section class="hero">
-    <div class="hero-inner">
-        <div class="hero-badge">Ferramenta de Apoio Clínico</div>
-        <h1 class="hero-title">Diagnóstico Diferencial<br/>para <span class="highlight">Doenças Raras</span></h1>
-        <p class="hero-subtitle">
-            Insira os dados do paciente, histórico familiar e sintomas para obter
-            uma lista de possíveis condições raras com base em evidências clínicas.
-        </p>
-        <a href="#form-section" class="btn btn-primary btn-lg">Iniciar Avaliação</a>
+  <div class="hero-bg-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Ferramenta de triagem clínica · Doenças raras
     </div>
+    <h1 class="hero-title">
+      Sua <span class="gradient-text">jornada diagnóstica</span><br/>começa com uma conversa
+    </h1>
+    <p class="hero-subtitle">
+      Descreva seus sintomas em linguagem natural. Nossa IA analisa, cruza com uma base
+      clínica de doenças raras e gera um relatório técnico para seu médico encaminhar você
+      ao especialista certo — sem formulários complicados.
+    </p>
+    <div class="hero-cta">
+      <button class="btn-primary-lg" id="btn-open-chat">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Iniciar triagem
+      </button>
+      <a href="#como-funciona" class="btn-ghost-lg">
+        Ver como funciona
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">19+</span>
+        <span class="stat-label">Doenças catalogadas</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num">5–20 anos</span>
+        <span class="stat-label">Tempo médio de diagnóstico tardio</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num">300M+</span>
+        <span class="stat-label">Pessoas afetadas no mundo</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="chat-preview-card">
+      <div class="chat-preview-header">
+        <div class="chat-preview-avatar">A</div>
+        <div>
+          <div class="chat-preview-name">Ari · RareDx</div>
+          <div class="chat-preview-status"><span class="online-dot"></span>Online</div>
+        </div>
+      </div>
+      <div class="chat-preview-messages">
+        <div class="preview-msg bot">
+          <div class="preview-bubble">Olá! Pode me contar o que está sentindo? Descreva como se estivesse falando com um amigo. 😊</div>
+        </div>
+        <div class="preview-msg user">
+          <div class="preview-bubble">Tenho cansaço extremo, dores nas juntas e manchas roxas na pele com frequência</div>
+        </div>
+        <div class="preview-msg bot">
+          <div class="preview-bubble">Entendi. Há quanto tempo você sente isso? E alguém na sua família tem problemas similares?</div>
+        </div>
+        <div class="preview-typing">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- FORMULÁRIO PRINCIPAL -->
-<main id="form-section" class="container">
-    <div class="form-wrapper">
-
-        <!-- BARRA DE PROGRESSO DE ETAPAS -->
-        <div class="stepper">
-            <div class="step active" data-step="1">
-                <div class="step-circle">1</div>
-                <span>Dados do Paciente</span>
-            </div>
-            <div class="step-line"></div>
-            <div class="step" data-step="2">
-                <div class="step-circle">2</div>
-                <span>Histórico Familiar</span>
-            </div>
-            <div class="step-line"></div>
-            <div class="step" data-step="3">
-                <div class="step-circle">3</div>
-                <span>Sintomas</span>
-            </div>
-            <div class="step-line"></div>
-            <div class="step" data-step="4">
-                <div class="step-circle">4</div>
-                <span>Resultado</span>
-            </div>
+<!-- ── COMO FUNCIONA ── -->
+<section class="how-section" id="como-funciona">
+  <div class="section-inner">
+    <div class="section-label">Processo</div>
+    <h2 class="section-title">Como funciona em 3 etapas</h2>
+    <p class="section-sub">Da conversa ao relatório médico, tudo de forma automática e segura.</p>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </div>
-
-        <!-- ETAPA 1: DADOS DO PACIENTE -->
-        <div class="form-step" id="step-1">
-            <div class="step-header">
-                <h2>Dados do Paciente</h2>
-                <p>Preencha as informações básicas do paciente para melhorar a precisão do diagnóstico.</p>
-            </div>
-            <div class="form-grid">
-                <div class="form-group col-2">
-                    <label for="patient-name">Nome do Paciente <span class="optional">(opcional)</span></label>
-                    <input type="text" id="patient-name" placeholder="Nome completo" autocomplete="off" />
-                </div>
-                <div class="form-group">
-                    <label for="patient-age">Idade <span class="required">*</span></label>
-                    <input type="number" id="patient-age" placeholder="Ex: 32" min="0" max="120" required />
-                </div>
-                <div class="form-group">
-                    <label for="patient-sex">Sexo Biológico <span class="required">*</span></label>
-                    <select id="patient-sex" required>
-                        <option value="">Selecione...</option>
-                        <option value="feminino">Feminino</option>
-                        <option value="masculino">Masculino</option>
-                        <option value="outro">Outro / Não informado</option>
-                    </select>
-                </div>
-                <div class="form-group col-2">
-                    <label for="patient-ethnicity">Etnia / Ancestralidade</label>
-                    <select id="patient-ethnicity">
-                        <option value="">Não informado</option>
-                        <option value="branca">Branca / Europeia</option>
-                        <option value="negra">Negra / Africana</option>
-                        <option value="parda">Parda / Mista</option>
-                        <option value="asiatica">Asiática</option>
-                        <option value="judaica_ashkenazi">Judaica Ashkenazi</option>
-                        <option value="mediterranea">Mediterrânea</option>
-                        <option value="indigena">Indígena</option>
-                        <option value="outra">Outra</option>
-                    </select>
-                </div>
-                <div class="form-group col-2">
-                    <label for="chief-complaint">Queixa Principal</label>
-                    <textarea id="chief-complaint" placeholder="Descreva brevemente o problema principal do paciente..." rows="3"></textarea>
-                </div>
-            </div>
-
-            <div class="form-section-title">Fatores de Risco Gerais</div>
-            <div class="checkbox-grid" id="risk-factors-grid">
-                <label class="checkbox-item">
-                    <input type="checkbox" value="historico_familiar" /> Histórico familiar de doenças genéticas
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" value="tabagismo" /> Tabagismo
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" value="doenças_autoimunes" /> Doenças autoimunes
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" value="ascendência_judaica_ashkenazi" /> Ascendência Judaica Ashkenazi
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" value="ascendência_africana" /> Ascendência Africana
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" value="ascendência_mediterrânea" /> Ascendência Mediterrânea
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" value="timoma" /> Timoma diagnosticado
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" value="uso_de_certos_medicamentos" /> Uso de medicamentos potencialmente gatilho
-                </label>
-            </div>
-
-            <div class="step-actions">
-                <button class="btn btn-primary" onclick="nextStep(2)">Próximo: Histórico Familiar →</button>
-            </div>
+        <h3>Você conversa</h3>
+        <p>Descreva seus sintomas naturalmente. Ari, nosso assistente, faz perguntas de acompanhamento para entender seu histórico completo.</p>
+      </div>
+      <div class="step-connector">
+        <svg width="40" height="16" viewBox="0 0 40 16" fill="none"><path d="M0 8h36M28 2l8 6-8 6" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="10" ry="10"/><path d="M12 6v6l4 2"/></svg>
         </div>
-
-        <!-- ETAPA 2: HISTÓRICO FAMILIAR -->
-        <div class="form-step hidden" id="step-2">
-            <div class="step-header">
-                <h2>Histórico Familiar</h2>
-                <p>Informações sobre doenças na família têm peso significativo no diagnóstico diferencial genético.</p>
-            </div>
-
-            <div class="form-group">
-                <label class="toggle-label">
-                    <input type="checkbox" id="consanguinity" />
-                    <span class="toggle-text">Há consanguinidade entre os pais ou ancestrais próximos?</span>
-                </label>
-            </div>
-
-            <div class="form-section-title">Condições na Família</div>
-            <p class="section-hint">Selecione todas as condições presentes em familiares de 1º ou 2º grau.</p>
-
-            <div class="family-conditions-grid" id="family-conditions-grid">
-                <!-- Preenchido pelo JavaScript -->
-                <div class="loading-spinner small"><div class="spinner"></div> Carregando...</div>
-            </div>
-
-            <div class="form-group mt-4">
-                <label for="family-notes">Observações Adicionais sobre o Histórico Familiar</label>
-                <textarea id="family-notes" placeholder="Ex: avó paterna faleceu de insuficiência cardíaca aos 35 anos, tio materno com doença neurológica não diagnosticada..." rows="3"></textarea>
-            </div>
-
-            <div class="step-actions">
-                <button class="btn btn-secondary" onclick="nextStep(1)">← Voltar</button>
-                <button class="btn btn-primary" onclick="nextStep(3)">Próximo: Sintomas →</button>
-            </div>
+        <h3>IA analisa</h3>
+        <p>Algoritmo cruza seus sintomas, histórico familiar e fatores de risco com nossa base clínica baseada em Orphanet e OMIM.</p>
+      </div>
+      <div class="step-connector">
+        <svg width="40" height="16" viewBox="0 0 40 16" fill="none"><path d="M0 8h36M28 2l8 6-8 6" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
         </div>
-
-        <!-- ETAPA 3: SINTOMAS -->
-        <div class="form-step hidden" id="step-3">
-            <div class="step-header">
-                <h2>Sintomas do Paciente</h2>
-                <p>Selecione todos os sintomas presentes. Quanto mais sintomas informados, mais preciso o resultado.</p>
-            </div>
-
-            <div class="symptom-search-bar">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="symptom-search" placeholder="Buscar sintoma..." oninput="filterSymptoms(this.value)" />
-                <button class="clear-search" onclick="clearSearch()" title="Limpar busca">✕</button>
-            </div>
-
-            <div class="symptom-counter">
-                <span id="selected-count">0</span> sintomas selecionados
-                <button class="btn-link" onclick="clearAllSymptoms()">Limpar todos</button>
-            </div>
-
-            <div class="symptoms-grid" id="symptoms-grid">
-                <!-- Preenchido pelo JavaScript -->
-                <div class="loading-spinner"><div class="spinner"></div><p>Carregando sintomas...</p></div>
-            </div>
-
-            <div class="step-actions">
-                <button class="btn btn-secondary" onclick="nextStep(2)">← Voltar</button>
-                <button class="btn btn-primary btn-diagnose" onclick="runDiagnosis()">
-                    <span class="btn-icon">⚕</span> Gerar Diagnóstico Diferencial
-                </button>
-            </div>
-        </div>
-
-        <!-- ETAPA 4: RESULTADOS -->
-        <div class="form-step hidden" id="step-4">
-            <div id="results-container">
-                <!-- Preenchido pelo JavaScript -->
-            </div>
-            <div class="step-actions mt-4">
-                <button class="btn btn-secondary" onclick="nextStep(3)">← Editar Sintomas</button>
-                <button class="btn btn-outline" onclick="resetForm()">🔄 Nova Avaliação</button>
-            </div>
-        </div>
-
-    </div><!-- end form-wrapper -->
-</main>
-
-<!-- SOBRE -->
-<section id="about-section" class="about-section">
-    <div class="container">
-        <div class="about-grid">
-            <div class="about-card">
-                <div class="about-icon">🧬</div>
-                <h3>Base de Dados Clínica</h3>
-                <p>18+ doenças raras catalogadas com sintomas, herança genética, genes envolvidos e critérios clínicos baseados no Orphanet e OMIM.</p>
-            </div>
-            <div class="about-card">
-                <div class="about-icon">📊</div>
-                <h3>Pontuação Ponderada</h3>
-                <p>Algoritmo que cruza sintomas (60%), histórico familiar (25%) e fatores de risco (15%), com bônus por sinais de alerta clínicos.</p>
-            </div>
-            <div class="about-card">
-                <div class="about-icon">⚠️</div>
-                <h3>Aviso Médico</h3>
-                <p>Esta ferramenta é apenas de apoio informativo. Não substitui avaliação por médico especialista ou geneticista clínico.</p>
-            </div>
-        </div>
+        <h3>Médico recebe</h3>
+        <p>Um relatório técnico com hipóteses diagnósticas, genes envolvidos e exames sugeridos é gerado para o seu médico.</p>
+      </div>
     </div>
+  </div>
 </section>
 
+<!-- ── SOBRE ── -->
+<section class="about-section" id="sobre">
+  <div class="section-inner">
+    <div class="section-label">Sobre o projeto</div>
+    <h2 class="section-title">Por que o RareDx existe</h2>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>Pacientes com doenças raras passam em média <strong>5 a 20 anos</strong> até receberem um diagnóstico correto, consultando dezenas de especialistas antes de chegar ao profissional certo.</p>
+        <p>O RareDx encurta esse caminho. Ao mapear sintomas em linguagem natural para critérios clínicos padronizados (HPO/Orphanet), geramos uma triagem inteligente que ajuda o médico generalista a identificar quando encaminhar o paciente a um especialista em doenças raras.</p>
+        <div class="about-tags">
+          <span class="tag">Orphanet</span>
+          <span class="tag">OMIM</span>
+          <span class="tag">HPO</span>
+          <span class="tag">SAPS/UBS</span>
+          <span class="tag">CID-10</span>
+        </div>
+      </div>
+      <div class="about-cards">
+        <div class="about-feature-card">
+          <div class="feature-icon accent">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>
+          </div>
+          <div>
+            <h4>Base clínica estruturada</h4>
+            <p>19 doenças raras com sintomas, genes, herança genética, prevalência e red flags.</p>
+          </div>
+        </div>
+        <div class="about-feature-card">
+          <div class="feature-icon green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div>
+            <h4>Triagem, não diagnóstico</h4>
+            <p>O sistema apoia o médico — não substitui. Todo resultado vem com disclaimer claro.</p>
+          </div>
+        </div>
+        <div class="about-feature-card">
+          <div class="feature-icon purple">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <div>
+            <h4>Dashboard médico</h4>
+            <p>Relatório técnico com scores, exames sugeridos e linguagem para encaminhamento.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DISCLAIMER ── -->
+<section class="disclaimer-banner">
+  <div class="section-inner">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <p><strong>Aviso:</strong> O RareDx é uma ferramenta de apoio informativo e <strong>não substitui</strong> avaliação médica especializada. Em caso de sintomas graves, procure atendimento imediatamente.</p>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
 <footer class="footer">
-    <div class="container">
-        <p>RareDx © 2026 — Ferramenta de apoio ao diagnóstico diferencial de doenças raras.</p>
-        <p class="footer-disclaimer">Este sistema é educacional e informativo. Não fornece diagnóstico médico definitivo.</p>
+  <div class="section-inner footer-inner">
+    <div class="footer-logo">
+      <a href="/" class="logo">
+        <div class="logo-icon-wrap">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/><path d="M8 12H4"/><path d="M20 12h-4"/></svg>
+        </div>
+        <span>Rare<strong>Dx</strong></span>
+      </a>
+      <p>Ferramenta de triagem clínica para doenças raras.</p>
     </div>
+    <div class="footer-links">
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#sobre">Sobre</a>
+      <a href="/dashboard">Área Médica</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="section-inner">
+      <p>RareDx © 2026 — Ferramenta educacional e informativa. Não fornece diagnóstico médico definitivo.</p>
+    </div>
+  </div>
 </footer>
+
+<!-- ── CHAT OVERLAY ── -->
+<div class="chat-overlay" id="chat-overlay">
+  <div class="chat-panel" id="chat-panel">
+
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <div class="chat-avatar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <div>
+          <div class="chat-name">Ari · RareDx</div>
+          <div class="chat-status"><span class="online-dot"></span>Assistente de triagem</div>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="chat-action-btn" id="btn-new-chat" title="Nova conversa">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="chat-close-btn" id="btn-close-chat" aria-label="Fechar chat">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="chat-progress" id="chat-progress">
+      <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+    </div>
+
+    <div class="chat-messages" id="chat-messages"></div>
+
+    <!-- Quick reply chips -->
+    <div class="quick-replies" id="quick-replies"></div>
+
+    <div class="chat-input-area">
+      <div class="chat-input-wrap">
+        <textarea
+          id="chat-input"
+          class="chat-input"
+          placeholder="Digite sua mensagem..."
+          rows="1"
+          disabled
+        ></textarea>
+        <button class="chat-send-btn" id="chat-send" disabled aria-label="Enviar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <p class="chat-disclaimer">Apenas triagem informativa — não substitui consulta médica.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- Floating chat button -->
+<button class="chat-fab" id="chat-fab" aria-label="Abrir triagem">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span class="fab-badge">Triagem</span>
+</button>
 
 <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
