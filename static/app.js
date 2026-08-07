@@ -1,5 +1,19 @@
 /* ── ArIAdne.Dx App.js ── */
 
+/* ── Priority thresholds ── */
+const PRIORITY = {
+  alta:  { min: 75,   label: 'Alta Prioridade',   scoreClass: 'score-high', barClass: 'score-high-bar', txtClass: 'score-high-txt', color: 'var(--red)'    },
+  media: { min: 50,   label: 'Prioridade Média',  scoreClass: 'score-med',  barClass: 'score-med-bar',  txtClass: 'score-med-txt',  color: 'var(--yellow)' },
+  baixa: { min: 25,   label: 'Prioridade Baixa',  scoreClass: 'score-low',  barClass: 'score-low-bar',  txtClass: 'score-low-txt',  color: 'var(--green)'  },
+  sem:   { min: 0,    label: 'Sem Prioridade',    scoreClass: 'score-none', barClass: 'score-none-bar', txtClass: 'score-none-txt', color: 'var(--text-dim)'},
+};
+function getPriority(score) {
+  if (score >= 75) return PRIORITY.alta;
+  if (score >= 50) return PRIORITY.media;
+  if (score >= 25) return PRIORITY.baixa;
+  return PRIORITY.sem;
+}
+
 /* ── Header scroll ── */
 window.addEventListener('scroll', () => {
   document.getElementById('header')?.classList.toggle('scrolled', window.scrollY > 20);
@@ -42,18 +56,20 @@ overlay?.addEventListener('click', e => {
    ──────────────────────────────────────────── */
 
 const STEPS = [
-  'welcome',
-  'ask_name',
-  'ask_age',
-  'ask_sex',
-  'ask_symptoms_free',
-  'ask_more_symptoms',
-  'ask_duration',
-  'ask_family_history',
-  'ask_family_conditions',
-  'ask_risk_factors',
-  'processing',
-  'results',
+  'welcome',       // 0
+  'ask_name',      // 1
+  'ask_age',       // 2
+  'ask_sex',       // 3
+  'ask_location',  // 4  NEW
+  'ask_symptoms',  // 5
+  'ask_more',      // 6
+  'ask_duration',  // 7
+  'ask_exams',     // 8  NEW
+  'ask_family',    // 9
+  'ask_family_cond',// 10
+  'ask_risk',      // 11
+  'processing',    // 12
+  'results',       // 13
 ];
 
 let chatState = {};
@@ -77,9 +93,11 @@ function resetChat() {
     name: '',
     age: null,
     sex: '',
+    location: '',
     symptomsRaw: '',
     matchedSymptoms: [],
     duration: '',
+    examsRaw: '',
     familyHistory: false,
     familyConditions: [],
     riskFactors: [],
@@ -120,43 +138,62 @@ function askCurrentStep() {
     addBotMessage('Para começar, qual é o seu nome? <span style="color:var(--text-dim);font-size:12px">(pode deixar em branco)</span>');
     enableInput(true, 'Seu nome ou "prefiro não dizer"...');
     setQuickReplies(['Prefiro não dizer']);
+
   } else if (currentStep === 2) {
     addBotMessage(`Legal, ${chatState.name || 'tudo bem'} 😊 Quantos anos você tem?`);
     enableInput(true, 'Sua idade...');
+
   } else if (currentStep === 3) {
     addBotMessage('Qual é o seu sexo biológico? Isso ajuda na análise clínica.');
     enableInput(false);
     setQuickReplies(['Feminino', 'Masculino', 'Prefiro não informar']);
+
   } else if (currentStep === 4) {
-    addBotMessage('Agora me conta: <strong>o que você está sentindo?</strong> Descreva como se estivesse falando com um amigo. Pode ser uma lista ou uma frase.');
+    addBotMessage('Em qual cidade e estado você mora? Isso vai ajudar a identificar o agente de saúde responsável pela sua região.');
+    enableInput(true, 'Ex: São Paulo - SP, Fortaleza - CE...');
+    setQuickReplies(['Prefiro não informar']);
+
+  } else if (currentStep === 5) {
+    addBotMessage('Agora me conta: <strong>o que você está sentindo?</strong> Descreva como se estivesse falando com um amigo. Pode ser uma lista ou frase.');
     enableInput(true, 'Ex: cansaço extremo, dores nas articulações, manchas roxas...');
     setQuickReplies([]);
-  } else if (currentStep === 5) {
-    addBotMessage('Tem algum outro sintoma que você gostaria de adicionar? Algo como problemas de visão, dificuldade para respirar, alterações cognitivas ou na pele?');
+
+  } else if (currentStep === 6) {
+    addBotMessage('Tem algum outro sintoma que gostaria de adicionar? Problemas de visão, respiração, cognição ou pele?');
     enableInput(true, 'Mais sintomas ou "não, é só isso"...');
     setQuickReplies(['Não, é só isso', 'Problemas de visão', 'Dificuldade para respirar', 'Alterações na pele', 'Fraqueza muscular', 'Convulsões']);
-  } else if (currentStep === 6) {
+
+  } else if (currentStep === 7) {
     addBotMessage('Há quanto tempo você tem esses sintomas?');
     enableInput(true, 'Ex: 3 meses, 2 anos...');
     setQuickReplies(['Menos de 1 mês', '1 a 6 meses', '6 meses a 2 anos', 'Mais de 2 anos', 'Desde a infância']);
-  } else if (currentStep === 7) {
+
+  } else if (currentStep === 8) {
+    addBotMessage('Você já realizou algum exame relacionado a esses sintomas? Se sim, quais e qual foi o resultado?');
+    enableInput(true, 'Ex: hemograma, ressonância, exame genético... ou "não realizei nenhum"');
+    setQuickReplies(['Não realizei nenhum', 'Hemograma', 'Exame de imagem (RX / RM / TC)', 'Exame genético', 'Biopsia', 'Exames laboratoriais']);
+
+  } else if (currentStep === 9) {
     addBotMessage('Alguém na sua família — pais, irmãos, avós — tem ou teve sintomas parecidos ou alguma doença genética?');
     enableInput(false);
     setQuickReplies(['Sim', 'Não sei', 'Não']);
-  } else if (currentStep === 8) {
+
+  } else if (currentStep === 10) {
     if (chatState.familyHistory) {
-      addBotMessage('Que tipo de condição? Pode descrever ou escolher uma das opções abaixo.');
+      addBotMessage('Que tipo de condição? Pode descrever ou escolher uma das opções.');
       enableInput(true, 'Ex: anemia, problemas cardíacos, doença neurológica...');
       setQuickReplies(['Anemia / sangue', 'Problemas cardíacos', 'Doença neurológica', 'Problemas musculares', 'Doença hepática', 'Outro / não sei o nome']);
     } else {
-      currentStep = 9;
+      currentStep = 11;
       askCurrentStep();
     }
-  } else if (currentStep === 9) {
+
+  } else if (currentStep === 11) {
     addBotMessage('Algum desses fatores se aplica a você?');
     enableInput(false);
     setQuickReplies(['Histórico familiar de doenças genéticas', 'Doenças autoimunes', 'Ascendência africana', 'Ascendência mediterrânea', 'Ascendência judaica', 'Uso de medicamentos contínuos', 'Nenhum desses', 'Pular']);
-  } else if (currentStep === 10) {
+
+  } else if (currentStep === 12) {
     processDiagnosis();
   }
 }
@@ -192,49 +229,57 @@ async function handleUserInput(text) {
     setTimeout(() => askCurrentStep(), 500);
 
   } else if (currentStep === 4) {
-    chatState.symptomsRaw = text;
-    chatState.matchedSymptoms = matchSymptoms(text);
+    chatState.location = text.trim() === 'Prefiro não informar' ? '' : text.trim();
     currentStep = 5;
     setTimeout(() => askCurrentStep(), 500);
 
   } else if (currentStep === 5) {
+    chatState.symptomsRaw = text;
+    chatState.matchedSymptoms = matchSymptoms(text);
+    currentStep = 6;
+    setTimeout(() => askCurrentStep(), 500);
+
+  } else if (currentStep === 6) {
     const lower = text.toLowerCase();
     if (!lower.includes('não') && !lower.includes('nao') && !lower.includes('só isso') && !lower.includes('so isso')) {
       const extra = matchSymptoms(text);
       chatState.matchedSymptoms = [...new Set([...chatState.matchedSymptoms, ...extra])];
       chatState.symptomsRaw += ', ' + text;
     }
-    currentStep = 6;
-    setTimeout(() => askCurrentStep(), 500);
-
-  } else if (currentStep === 6) {
-    chatState.duration = text;
     currentStep = 7;
     setTimeout(() => askCurrentStep(), 500);
 
   } else if (currentStep === 7) {
-    const lower = text.toLowerCase();
-    chatState.familyHistory = lower === 'sim' || lower.includes('sim');
-    if (chatState.familyHistory) {
-      chatState.riskFactors.push('historico_familiar');
-    }
+    chatState.duration = text;
     currentStep = 8;
     setTimeout(() => askCurrentStep(), 500);
 
   } else if (currentStep === 8) {
-    if (chatState.familyHistory) {
-      chatState.familyConditions = parseFamilyConditions(text);
-    }
+    chatState.examsRaw = text.trim() === 'Não realizei nenhum' ? '' : text.trim();
     currentStep = 9;
     setTimeout(() => askCurrentStep(), 500);
 
   } else if (currentStep === 9) {
     const lower = text.toLowerCase();
+    chatState.familyHistory = lower === 'sim' || lower.includes('sim');
+    if (chatState.familyHistory) chatState.riskFactors.push('historico_familiar');
+    currentStep = 10;
+    setTimeout(() => askCurrentStep(), 500);
+
+  } else if (currentStep === 10) {
+    if (chatState.familyHistory) {
+      chatState.familyConditions = parseFamilyConditions(text);
+    }
+    currentStep = 11;
+    setTimeout(() => askCurrentStep(), 500);
+
+  } else if (currentStep === 11) {
+    const lower = text.toLowerCase();
     if (!lower.includes('nenhum') && !lower.includes('pular')) {
       const factors = parseRiskFactors(text);
       chatState.riskFactors = [...new Set([...chatState.riskFactors, ...factors])];
     }
-    currentStep = 10;
+    currentStep = 12;
     setTimeout(() => askCurrentStep(), 500);
   }
 }
@@ -338,7 +383,6 @@ function parseRiskFactors(text) {
   return found;
 }
 
-/* ── Process Diagnosis ── */
 async function processDiagnosis() {
   setProgress(90);
   clearQuickReplies();
@@ -354,15 +398,16 @@ async function processDiagnosis() {
         sex: chatState.sex || 'outro',
         ethnicity: '',
         chief_complaint: chatState.symptomsRaw,
+        location: chatState.location,
+        exams: chatState.examsRaw,
+        duration: chatState.duration,
       },
       family_history: {
         conditions: chatState.familyConditions,
         consanguinity: false,
         notes: '',
       },
-      symptoms: chatState.matchedSymptoms.length
-        ? chatState.matchedSymptoms
-        : ['fadiga'],  // fallback so API doesn't reject
+      symptoms: chatState.matchedSymptoms.length ? chatState.matchedSymptoms : ['fadiga'],
       risk_factors: chatState.riskFactors,
     };
 
@@ -378,20 +423,34 @@ async function processDiagnosis() {
 
       setTimeout(() => {
         if (!data.success || !data.results?.length) {
-          addBotMessage('Não encontrei correspondências relevantes com os sintomas informados. Isso pode significar que sua condição não está no nosso banco atual — por favor, consulte um médico.');
+          addBotMessage('Não encontrei correspondências relevantes com os sintomas informados. Por favor, consulte um médico.');
           return;
         }
 
-        // Store results for dashboard
         window._lastResults = data;
         window._lastPayload = payload;
+        sessionStorage.setItem('ariadne_results', JSON.stringify(data));
+        sessionStorage.setItem('ariadne_payload', JSON.stringify(payload));
 
-        const top = data.results[0];
+        // Filtra só Alta Prioridade (>= 75%) para mostrar ao paciente
+        const highPriority = data.results.filter(r => r.score >= 75);
+        const total = data.total_found;
+
         showTyping(1000, () => {
-          addBotMessage(`Encontrei <strong>${data.total_found}</strong> possível(is) condição(ões) que podem estar relacionadas aos seus sintomas. Aqui está o resumo:`);
-          setTimeout(() => {
-            addResultsCard(data.results.slice(0, 5));
-          }, 600);
+          if (highPriority.length === 0) {
+            addBotMessage(`Analisei <strong>${total}</strong> possível(is) condição(ões). Nenhuma atingiu alta compatibilidade com seus sintomas (acima de 75%).`);
+            setTimeout(() => {
+              addBotMessage('Isso pode indicar que sua condição precisa de mais sintomas para uma triagem precisa, ou que está fora do nosso banco atual. <strong>Procure um médico para avaliação.</strong>');
+              addBotMessage('O relatório completo com todas as hipóteses foi enviado para o agente de saúde da sua região. 📋');
+              setQuickReplies(['Nova triagem', 'Ver relatório completo']);
+              enableInput(true, 'Sua pergunta...');
+            }, 800);
+          } else {
+            addBotMessage(`De <strong>${total}</strong> condição(ões) analisadas, <strong>${highPriority.length}</strong> apresentou alta compatibilidade (acima de 75%) com seus sintomas:`);
+            setTimeout(() => {
+              addResultsCard(highPriority);
+            }, 600);
+          }
         });
       }, 800);
 
@@ -403,11 +462,9 @@ async function processDiagnosis() {
 }
 
 function addResultsCard(results) {
-  // ── Header message ──
   const wrap = document.getElementById('chat-messages');
   if (!wrap) return;
 
-  // ── Patient-facing card ──
   const div = document.createElement('div');
   div.className = 'chat-msg bot';
   div.style.maxWidth = '100%';
@@ -415,52 +472,37 @@ function addResultsCard(results) {
 
   let html = `<div class="results-summary-card">
     <div class="results-summary-header">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      Possíveis condições identificadas
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      🔴 Alta Prioridade — acima de 75% de compatibilidade
     </div>`;
 
   for (const r of results) {
-    const scoreClass   = r.score >= 50 ? 'score-high' : r.score >= 25 ? 'score-med' : 'score-low';
-    const probLabel    = r.score >= 60 ? 'Alta compatibilidade'
-                       : r.score >= 35 ? 'Compatibilidade moderada'
-                       : 'Baixa compatibilidade';
-    const probDesc     = r.score >= 60
-      ? 'Seus sintomas têm forte correspondência com essa condição.'
-      : r.score >= 35
-      ? 'Alguns dos seus sintomas se encaixam nessa condição.'
-      : 'Poucos sintomas correspondem, mas não pode ser descartada.';
-
-    // Tradução simples da descrição técnica para linguagem acessível
+    const p = getPriority(r.score);
     const patientDesc = simplifyDescription(r.description);
-
-    // Sintomas que batem — traduzir para PT legível
-    const symMatched  = r.matched_symptoms.slice(0, 4)
-      .map(s => s.replace(/_/g, ' ')).join(', ');
+    const symMatched  = (r.matched_symptoms || []).slice(0, 4).map(s => s.replace(/_/g, ' ')).join(', ');
 
     html += `
     <div class="result-item-full">
       <div class="result-item-top">
         <div class="result-info">
           <div class="result-name">${r.name}</div>
-          <div class="result-cat">${r.category} · ${r.orphanet_code}</div>
+          <div class="result-cat">${r.category}${r.orphanet_code ? ' · ' + r.orphanet_code : ''}</div>
         </div>
         <div class="prob-badge-wrap">
-          <div class="result-score-badge ${scoreClass}">${r.score}%</div>
-          <div class="prob-label ${scoreClass}-txt">${probLabel}</div>
+          <div class="result-score-badge ${p.scoreClass}">${r.score}%</div>
+          <div class="prob-label ${p.txtClass}">${p.label}</div>
         </div>
       </div>
       <div class="result-item-body">
         <p class="result-patient-desc">${patientDesc}</p>
-        ${symMatched ? `<div class="result-matched-sym">
-          <span class="matched-label">Sintomas em comum:</span> ${symMatched}
-        </div>` : ''}
+        ${symMatched ? `<div class="result-matched-sym"><span class="matched-label">Sintomas em comum:</span> ${symMatched}</div>` : ''}
         <div class="prob-bar-wrap">
           <div class="prob-bar-track">
-            <div class="prob-bar-fill ${scoreClass}-bar" style="width:${r.score}%"></div>
+            <div class="prob-bar-fill ${p.barClass}" style="width:${r.score}%"></div>
           </div>
           <span class="prob-bar-pct">${r.score}%</span>
         </div>
-        <p class="prob-hint">${probDesc}</p>
+        <p class="prob-hint">Seus sintomas têm forte correspondência com essa condição — leve ao médico com atenção.</p>
         ${r.has_red_flags ? `<div class="red-flag-pill">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           Sinal de alerta — mencione ao médico com urgência
@@ -476,7 +518,7 @@ function addResultsCard(results) {
     </div>
     <button class="report-btn" onclick="openDashboardReport()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
-      Ver relatório técnico para o médico
+      Ver relatório completo para o agente de saúde
     </button>
   </div>`;
 
@@ -485,10 +527,10 @@ function addResultsCard(results) {
 
   setTimeout(() => {
     showTyping(900, () => {
-      addBotMessage('💡 <strong>O que fazer agora?</strong> Mostre esta triagem ao seu médico. Ele vai receber um relatório técnico completo com todas as hipóteses, probabilidades e exames sugeridos para cada condição.');
+      addBotMessage('📋 <strong>Próximo passo:</strong> Um relatório completo foi preparado para o agente de saúde da sua região' + (chatState.location ? ` <strong>(${chatState.location})</strong>` : '') + '. Ele vai encaminhar você ao especialista correto.');
       setTimeout(() => {
         addBotMessage('Posso ajudar com mais alguma coisa?');
-        setQuickReplies(['Nova triagem', 'Ver relatório médico', 'O que significa cada doença?']);
+        setQuickReplies(['Nova triagem', 'Ver relatório completo', 'O que significa cada doença?']);
         enableInput(true, 'Sua pergunta...');
       }, 900);
     });
