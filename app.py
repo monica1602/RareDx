@@ -9,8 +9,14 @@ CORS(app)
 
 @app.route("/")
 def index():
-    """Página principal com o formulário de diagnóstico."""
+    """Página principal com o chat de triagem."""
     return render_template("index.html")
+
+
+@app.route("/dashboard")
+def dashboard():
+    """Painel médico com formulário clínico completo e relatório."""
+    return render_template("dashboard.html")
 
 
 @app.route("/api/symptoms", methods=["GET"])
