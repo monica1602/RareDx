@@ -403,6 +403,11 @@ async function processDiagnosis() {
 }
 
 function addResultsCard(results) {
+  // ── Header message ──
+  const wrap = document.getElementById('chat-messages');
+  if (!wrap) return;
+
+  // ── Patient-facing card ──
   const div = document.createElement('div');
   div.className = 'chat-msg bot';
   div.style.maxWidth = '100%';
@@ -411,42 +416,101 @@ function addResultsCard(results) {
   let html = `<div class="results-summary-card">
     <div class="results-summary-header">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      Top ${results.length} hipóteses diagnósticas
+      Possíveis condições identificadas
     </div>`;
 
   for (const r of results) {
-    const scoreClass = r.score >= 50 ? 'score-high' : r.score >= 25 ? 'score-med' : 'score-low';
-    html += `<div class="result-item">
-      <div class="result-info">
-        <div class="result-name">${r.name}</div>
-        <div class="result-cat">${r.category}</div>
-        ${r.has_red_flags ? '<div class="red-flag-pill">⚠ Sinal de alerta</div>' : ''}
+    const scoreClass   = r.score >= 50 ? 'score-high' : r.score >= 25 ? 'score-med' : 'score-low';
+    const probLabel    = r.score >= 60 ? 'Alta compatibilidade'
+                       : r.score >= 35 ? 'Compatibilidade moderada'
+                       : 'Baixa compatibilidade';
+    const probDesc     = r.score >= 60
+      ? 'Seus sintomas têm forte correspondência com essa condição.'
+      : r.score >= 35
+      ? 'Alguns dos seus sintomas se encaixam nessa condição.'
+      : 'Poucos sintomas correspondem, mas não pode ser descartada.';
+
+    // Tradução simples da descrição técnica para linguagem acessível
+    const patientDesc = simplifyDescription(r.description);
+
+    // Sintomas que batem — traduzir para PT legível
+    const symMatched  = r.matched_symptoms.slice(0, 4)
+      .map(s => s.replace(/_/g, ' ')).join(', ');
+
+    html += `
+    <div class="result-item-full">
+      <div class="result-item-top">
+        <div class="result-info">
+          <div class="result-name">${r.name}</div>
+          <div class="result-cat">${r.category} · ${r.orphanet_code}</div>
+        </div>
+        <div class="prob-badge-wrap">
+          <div class="result-score-badge ${scoreClass}">${r.score}%</div>
+          <div class="prob-label ${scoreClass}-txt">${probLabel}</div>
+        </div>
       </div>
-      <div class="result-score-badge ${scoreClass}">${r.score}%</div>
+      <div class="result-item-body">
+        <p class="result-patient-desc">${patientDesc}</p>
+        ${symMatched ? `<div class="result-matched-sym">
+          <span class="matched-label">Sintomas em comum:</span> ${symMatched}
+        </div>` : ''}
+        <div class="prob-bar-wrap">
+          <div class="prob-bar-track">
+            <div class="prob-bar-fill ${scoreClass}-bar" style="width:${r.score}%"></div>
+          </div>
+          <span class="prob-bar-pct">${r.score}%</span>
+        </div>
+        <p class="prob-hint">${probDesc}</p>
+        ${r.has_red_flags ? `<div class="red-flag-pill">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Sinal de alerta — mencione ao médico com urgência
+        </div>` : ''}
+      </div>
     </div>`;
   }
 
-  html += `<button class="report-btn" onclick="openDashboardReport()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
-    Ver relatório completo para o médico
-  </button>
+  html += `
+    <div class="results-footer-note">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Estas são <strong>hipóteses de triagem</strong>, não diagnósticos. Apenas um médico pode confirmar.
+    </div>
+    <button class="report-btn" onclick="openDashboardReport()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+      Ver relatório técnico para o médico
+    </button>
   </div>`;
 
   div.innerHTML = html;
-  document.getElementById('chat-messages')?.appendChild(div);
+  wrap.appendChild(div);
 
   setTimeout(() => {
-    showTyping(800, () => {
-      addBotMessage('💡 <strong>Importante:</strong> Esses resultados são apenas uma triagem informativa. Leve este relatório ao seu médico para que ele possa avaliar e encaminhar você ao especialista correto.');
+    showTyping(900, () => {
+      addBotMessage('💡 <strong>O que fazer agora?</strong> Mostre esta triagem ao seu médico. Ele vai receber um relatório técnico completo com todas as hipóteses, probabilidades e exames sugeridos para cada condição.');
       setTimeout(() => {
         addBotMessage('Posso ajudar com mais alguma coisa?');
-        setQuickReplies(['Nova triagem', 'Ver relatório médico', 'Sobre as doenças']);
+        setQuickReplies(['Nova triagem', 'Ver relatório médico', 'O que significa cada doença?']);
         enableInput(true, 'Sua pergunta...');
-      }, 800);
+      }, 900);
     });
   }, 400);
 
   scrollToBottom();
+}
+
+/* Simplifica descrições técnicas para linguagem do paciente */
+function simplifyDescription(desc) {
+  if (!desc) return '';
+  // Trunca em 120 chars e remove jargão excessivo
+  let s = desc
+    .replace(/Distúrbio hereditário/gi, 'Condição hereditária')
+    .replace(/Distúrbio genético/gi, 'Condição genética')
+    .replace(/Distúrbio metabólico/gi, 'Problema no metabolismo')
+    .replace(/Distúrbio cromossômico/gi, 'Alteração cromossômica')
+    .replace(/Distúrbio neurológico/gi, 'Condição neurológica')
+    .replace(/Distúrbio endócrino/gi, 'Problema hormonal')
+    .replace(/causada pela deficiência da enzima/gi, 'onde falta a enzima')
+    .replace(/caracterizado por/gi, 'que causa');
+  return s.length > 140 ? s.substring(0, 137) + '...' : s;
 }
 
 function openDashboardReport() {
