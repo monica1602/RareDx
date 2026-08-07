@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RareDx — Painel Médico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}" />
+</head>
+<body class="dashboard-body">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="/" class="logo logo-light">
+      <div class="logo-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/><path d="M8 12H4"/><path d="M20 12h-4"/></svg>
+      </div>
+      <span>Rare<strong>Dx</strong></span>
+    </a>
+    <div class="sidebar-role">Painel Médico</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="#" class="sidebar-link active" data-tab="triagem">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Nova Triagem
+    </a>
+    <a href="#" class="sidebar-link" data-tab="relatorio">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+      Relatório
+    </a>
+    <a href="#" class="sidebar-link" data-tab="doencas">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>
+      Base de Doenças
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="/" class="sidebar-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Voltar ao site
+    </a>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="dash-main">
+
+  <!-- ─ TAB: TRIAGEM ─ -->
+  <section class="dash-tab active" id="tab-triagem">
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">Nova Triagem Clínica</h1>
+        <p class="dash-sub">Preencha os dados do paciente para gerar o diagnóstico diferencial.</p>
+      </div>
+    </div>
+
+    <div class="dash-form-grid">
+
+      <!-- Dados do paciente -->
+      <div class="dash-card">
+        <div class="dash-card-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Dados do Paciente
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Nome <span class="opt">(opcional)</span></label>
+            <input type="text" id="d-name" placeholder="Nome do paciente" />
+          </div>
+          <div class="form-field sm">
+            <label>Idade <span class="req">*</span></label>
+            <input type="number" id="d-age" placeholder="Ex: 32" min="0" max="120" />
+          </div>
+          <div class="form-field sm">
+            <label>Sexo Biológico <span class="req">*</span></label>
+            <select id="d-sex">
+              <option value="">Selecione</option>
+              <option value="feminino">Feminino</option>
+              <option value="masculino">Masculino</option>
+              <option value="outro">Outro</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Etnia / Ancestralidade</label>
+            <select id="d-ethnicity">
+              <option value="">Não informado</option>
+              <option value="branca">Branca / Europeia</option>
+              <option value="negra">Negra / Africana</option>
+              <option value="parda">Parda / Mista</option>
+              <option value="asiatica">Asiática</option>
+              <option value="judaica_ashkenazi">Judaica Ashkenazi</option>
+              <option value="mediterranea">Mediterrânea</option>
+              <option value="indigena">Indígena</option>
+            </select>
+          </div>
+          <div class="form-field full">
+            <label>Queixa Principal</label>
+            <textarea id="d-complaint" rows="2" placeholder="Descreva o motivo da consulta..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fatores de risco -->
+      <div class="dash-card">
+        <div class="dash-card-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Fatores de Risco
+        </div>
+        <div class="checkbox-grid-dash" id="risk-grid">
+          <label class="cb-item"><input type="checkbox" value="historico_familiar" /> Histórico familiar de doenças genéticas</label>
+          <label class="cb-item"><input type="checkbox" value="tabagismo" /> Tabagismo</label>
+          <label class="cb-item"><input type="checkbox" value="doenças_autoimunes" /> Doenças autoimunes</label>
+          <label class="cb-item"><input type="checkbox" value="ascendência_judaica_ashkenazi" /> Ascendência Judaica Ashkenazi</label>
+          <label class="cb-item"><input type="checkbox" value="ascendência_africana" /> Ascendência Africana</label>
+          <label class="cb-item"><input type="checkbox" value="ascendência_mediterrânea" /> Ascendência Mediterrânea</label>
+          <label class="cb-item"><input type="checkbox" value="timoma" /> Timoma diagnosticado</label>
+          <label class="cb-item"><input type="checkbox" value="uso_de_certos_medicamentos" /> Medicamentos potencialmente gatilho</label>
+        </div>
+      </div>
+
+      <!-- Histórico familiar -->
+      <div class="dash-card">
+        <div class="dash-card-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Histórico Familiar
+        </div>
+        <label class="cb-item mb-2">
+          <input type="checkbox" id="d-consanguinity" />
+          Há consanguinidade entre os pais ou ancestrais próximos
+        </label>
+        <div class="family-conditions-grid-dash" id="family-conditions-dash">
+          <div class="loading-msg">Carregando condições...</div>
+        </div>
+        <div class="form-field mt-3">
+          <label>Observações adicionais</label>
+          <textarea id="d-family-notes" rows="2" placeholder="Ex: avó paterna faleceu com doença cardíaca precoce..."></textarea>
+        </div>
+      </div>
+
+      <!-- Sintomas -->
+      <div class="dash-card full-width">
+        <div class="dash-card-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Sintomas
+          <span class="symptom-count-badge" id="d-symptom-count">0 selecionados</span>
+        </div>
+        <div class="symptom-search-dash">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="d-symptom-search" placeholder="Buscar sintoma..." oninput="dashFilterSymptoms(this.value)" />
+        </div>
+        <div class="symptoms-grid-dash" id="symptoms-grid-dash">
+          <div class="loading-msg">Carregando sintomas...</div>
+        </div>
+      </div>
+
+    </div><!-- end form-grid -->
+
+    <div class="dash-submit-row">
+      <button class="btn-diagnose-dash" id="btn-diagnose-dash">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Gerar Diagnóstico Diferencial
+      </button>
+      <button class="btn-clear-dash" id="btn-clear-dash">Limpar tudo</button>
+    </div>
+
+    <div id="dash-results" class="dash-results-area" style="display:none"></div>
+  </section>
+
+  <!-- ─ TAB: RELATÓRIO ─ -->
+  <section class="dash-tab" id="tab-relatorio">
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">Relatório para Encaminhamento</h1>
+        <p class="dash-sub">Gere um relatório técnico formatado para encaminhar ao especialista.</p>
+      </div>
+    </div>
+    <div class="dash-card" id="report-card">
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+        <h3>Nenhum relatório gerado</h3>
+        <p>Execute uma triagem na aba "Nova Triagem" para gerar o relatório técnico.</p>
+        <button class="btn-ghost-sm" onclick="switchTab('triagem')">Ir para Nova Triagem</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─ TAB: BASE DE DOENÇAS ─ -->
+  <section class="dash-tab" id="tab-doencas">
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">Base de Doenças Raras</h1>
+        <p class="dash-sub">Catálogo clínico completo baseado em Orphanet e OMIM.</p>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="disease-search-row">
+        <div class="symptom-search-dash" style="max-width:360px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="disease-search" placeholder="Buscar doença..." oninput="filterDiseaseTable(this.value)" />
+        </div>
+      </div>
+      <div class="disease-table-wrap">
+        <table class="disease-table" id="disease-table">
+          <thead>
+            <tr>
+              <th>Doença</th>
+              <th>Categoria</th>
+              <th>Raridade</th>
+              <th>Prevalência</th>
+              <th>Orphanet</th>
+              <th>Herança</th>
+              <th>Detalhes</th>
+            </tr>
+          </thead>
+          <tbody id="disease-table-body">
+            <tr><td colspan="7" class="loading-msg">Carregando doenças...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Disease detail modal -->
+<div class="modal-overlay" id="disease-modal" style="display:none">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
