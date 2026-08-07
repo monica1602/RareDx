@@ -93,7 +93,7 @@ def diagnose():
         "disclaimer": (
             "Este resultado é apenas uma ferramenta de apoio informativo e NÃO substitui "
             "avaliação médica especializada. Em caso de sintomas graves, procure atendimento "
-            "médico imediatamente."
+            "médico imediatamente. ArIAdne.Dx — Diagnóstico de Doenças Raras."
         )
     })
 
